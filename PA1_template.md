@@ -80,13 +80,50 @@ intervalSum[which(intervalSum$interval.mean==maxIntevalSteps), 'interval']
 How many rows with missing data are there?
 
 ```r
-numberOfNARows <- sum(is.na(data$steps))
+NARows <- is.na(data$steps)
+numberOfNARows <- sum(NARows)
 numberOfNARows
 ```
 
 ```
 ## [1] 2304
 ```
+We then replace missing steps with means for corresponding interval, producing a new data set.
 
+```r
+NARowsIndices <- which(NARows)
+for(idx in NARowsIndices) {
+  data$steps[[idx]] <- intervalSum[intervalSum$interval==data$interval[[idx]], 'interval.mean']
+}
+```
+Repeating the steps from the first section, we now get updated summary statistics for the daily data.
+
+```r
+dailySum <- ddply(data, .(date), summarize, daily.sum=sum(steps, na.rm=TRUE))
+hist(dailySum$daily.sum, xlab='Steps per Day', col='red', 
+     main='Histogram of Steps per Day')
+```
+
+![plot of chunk unnamed-chunk-11](figure/unnamed-chunk-11.png) 
+
+```r
+meanDailySteps <- mean(dailySum$daily.sum, na.rm=TRUE)
+medianDailySteps <- median(dailySum$daily.sum, na.rm=TRUE)
+
+meanDailySteps
+```
+
+```
+## [1] 10766
+```
+
+```r
+medianDailySteps
+```
+
+```
+## [1] 10766
+```
+Note that the distribution of daily steps appears much less skewed, a fact seen both in the hisogram and also in the values of the mean and median, which are now equal to one another.
 
 ## Are there differences in activity patterns between weekdays and weekends?
