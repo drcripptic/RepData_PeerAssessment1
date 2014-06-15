@@ -51,7 +51,11 @@ maxIntevalSteps <- max(intervalSum$interval.mean)
 intervalSum[which(intervalSum$interval.mean==maxIntevalSteps), 'interval']
 ```
 ## Imputing missing values
-
+How many rows with missing data are there?
+```{r}
+numberOfNARows <- sum(is.na(data$steps))
+numberOfNARows
+```
 
 
 ## Are there differences in activity patterns between weekdays and weekends?

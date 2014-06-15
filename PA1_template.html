@@ -251,6 +251,15 @@ intervalSum[which(intervalSum$interval.mean==maxIntevalSteps), &#39;interval&#39
 
 <h2>Imputing missing values</h2>
 
+<p>How many rows with missing data are there?</p>
+
+<pre><code class="r">numberOfNARows &lt;- sum(is.na(data$steps))
+numberOfNARows
+</code></pre>
+
+<pre><code>## [1] 2304
+</code></pre>
+
 <h2>Are there differences in activity patterns between weekdays and weekends?</h2>
 
 </body>
