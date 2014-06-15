@@ -1,15 +1,14 @@
 # Reproducible Research: Peer Assessment 1
 
-
 ## Loading and preprocessing the data
 We first load the necessary packages:
 
 ```r
 library(plyr)
+library(lattice)
 ```
 
 We then begin the data processing by unzipping and loading the data.
-
 
 ```r
 data <- read.csv(unz("activity.zip", "activity.csv"))
@@ -21,6 +20,7 @@ To calculate the total number of steps taken each day, we use the plyr package. 
 ```r
 dailySum <- ddply(data, .(date), summarize, daily.sum=sum(steps, na.rm=TRUE))
 ```
+
 We then plot a hostogram of the above:
 
 ```r
@@ -29,6 +29,7 @@ hist(dailySum$daily.sum, xlab='Steps per Day', col='red',
 ```
 
 ![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4.png) 
+
 Finally we calculate the mean and the median of the total steps per day:
 
 ```r
@@ -57,6 +58,7 @@ Again use plyr to creat a summary data table, this time summarizing with respect
 intervalSum <- ddply(data, .(interval), summarize, 
                      interval.mean=mean(steps, na.rm=TRUE))
 ```
+
 Plotting this as time series data gives us a view of how activity chanegs during the day:
 
 ```r
@@ -76,6 +78,7 @@ intervalSum[which(intervalSum$interval.mean==maxIntevalSteps), 'interval']
 ```
 ## [1] 835
 ```
+
 ## Imputing missing values
 How many rows with missing data are there?
 
@@ -88,6 +91,7 @@ numberOfNARows
 ```
 ## [1] 2304
 ```
+
 We then replace missing steps with means for corresponding interval, producing a new data set.
 
 ```r
@@ -96,6 +100,7 @@ for(idx in NARowsIndices) {
   data$steps[[idx]] <- intervalSum[intervalSum$interval==data$interval[[idx]], 'interval.mean']
 }
 ```
+
 Repeating the steps from the first section, we now get updated summary statistics for the daily data.
 
 ```r
@@ -124,6 +129,47 @@ medianDailySteps
 ```
 ## [1] 10766
 ```
+
 Note that the distribution of daily steps appears much less skewed, a fact seen both in the hisogram and also in the values of the mean and median, which are now equal to one another.
 
 ## Are there differences in activity patterns between weekdays and weekends?
+We begin by adding variables to the data set. First, day of the week:
+
+```r
+data$days <- weekdays(strptime(data$date,format='%Y-%m-%d'))
+```
+
+Next we need to add variable denoting whether or a particular days is a weekend:
+
+```r
+weekend <- function(x) {
+  isWeekend = FALSE
+  if (x == 'Saturday' | x == 'Sunday') {
+    isWeekend = TRUE
+  }
+  else {
+    isWeekend = FALSE
+  }
+  isWeekend
+}
+for (idx in 1:nrow(data)) {
+  data$is.weekend[idx] <- weekend(data$days[idx])
+}
+```
+
+We now need to provide a summary of interval activity for weekends vs weekdays. Using plyr we create a new data frame.
+
+```r
+intervalSumDays <- ddply(data, .(interval, is.weekend), summarize, 
+                     interval.mean=mean(steps, na.rm=TRUE))
+```
+
+Finally we produce a lattice plot shwoing the difference in weekday vs weekend activity.
+
+```r
+xyplot(interval.mean ~ interval | is.weekend, data = intervalSumDays, layout = c(1,2), type='l')
+```
+
+![plot of chunk unnamed-chunk-15](figure/unnamed-chunk-15.png) 
+
+Weekend activity is clearly different from weekday activity.
