@@ -143,12 +143,12 @@ Next we need to add variable denoting whether or a particular days is a weekend:
 
 ```r
 weekend <- function(x) {
-  isWeekend = FALSE
+  isWeekend = 'Weekday'
   if (x == 'Saturday' | x == 'Sunday') {
-    isWeekend = TRUE
+    isWeekend = 'Weekend'
   }
   else {
-    isWeekend = FALSE
+    isWeekend = 'Weekday'
   }
   isWeekend
 }
@@ -167,7 +167,9 @@ intervalSumDays <- ddply(data, .(interval, is.weekend), summarize,
 Finally we produce a lattice plot shwoing the difference in weekday vs weekend activity.
 
 ```r
-xyplot(interval.mean ~ interval | is.weekend, data = intervalSumDays, layout = c(1,2), type='l')
+xyplot(interval.mean ~ interval | is.weekend, data = intervalSumDays, 
+       layout = c(1,2), type='l', xlab = 'Interval', ylab='Mean number of steps', 
+       main='Weekday vs Weekend Mean Steps')
 ```
 
 ![plot of chunk unnamed-chunk-15](figure/unnamed-chunk-15.png) 
